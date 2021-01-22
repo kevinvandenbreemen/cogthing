@@ -18,32 +18,27 @@ public class Grid {
         }
     }
 
-    private int numDimensions;
-    private int numPoints;
     private GridDimension[] firstDimension;
 
 
     public Grid(int numDimensions, int numPoints) {
-        this.numDimensions = numDimensions;
-        this.numPoints = numPoints;
-
         firstDimension = buildDimensions(numDimensions-1, numPoints);
     }
 
     private GridDimension[] buildDimensions(int numDimensions, int numPoints) {
+
+        GridDimension[] dimension = new GridDimension[numPoints];
+
         if(numDimensions == 1) {
-            GridDimension[] dimension = new GridDimension[numPoints];
             for(int i=0; i<numPoints; i++) {
                 dimension[i] = new GridDimension(new double[numPoints]);
             }
-            return dimension;
         } else {
-            GridDimension[] dimension = new GridDimension[numPoints];
             for(int i=0; i<numPoints; i++) {
                 dimension[i] = new GridDimension(buildDimensions(numDimensions-1, numPoints));
             }
-            return dimension;
         }
+        return dimension;
     }
 
     public GridPoint at(int ... location) {
