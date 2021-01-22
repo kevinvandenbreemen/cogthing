@@ -26,4 +26,38 @@ class IOTest {
         assertEquals(9.44, grid.at(9, 3, 1).activation)
     }
 
+    @Test
+    fun `should get outputs from the system`() {
+        val grid = Grid(3, 10)
+        val gridApi = GridAPI.getDefault(grid)
+
+        gridApi.input(
+                Position(2,2,2),
+                3.14
+        )
+
+        assertEquals(3.14, gridApi.output(Position(2,2,2))[0])
+    }
+
+    @Test
+    fun `should get multiple outputs from system`() {
+        val grid = Grid(3, 10)
+        val gridApi = GridAPI.getDefault(grid)
+
+        gridApi.input(
+                Position(2,2,2),
+                3.14
+        )
+        gridApi.input(
+                Position(4,3,1),
+                32.33333
+        )
+
+        assertEquals(3.14,
+                gridApi.output(Position(2,2,2), Position(4,3,1))[0])
+        assertEquals(32.33333,
+                gridApi.output(Position(2,2,2), Position(4,3,1))[1])
+
+    }
+
 }
