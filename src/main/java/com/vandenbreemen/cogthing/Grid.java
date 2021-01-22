@@ -5,6 +5,11 @@ package com.vandenbreemen.cogthing;
  */
 public class Grid {
 
+    @FunctionalInterface
+    public interface NodeVisitor {
+        void visit(GridPoint gridPoint, int...location);
+    }
+
     private class GridDimension {
         private GridDimension[] dimensionIntersects;
         private double[] activations;
@@ -93,6 +98,30 @@ public class Grid {
             copiedDimensions[i] = firstDimension[i].copy();
         }
         return new Grid(copiedDimensions);
+    }
+
+    public void visit(NodeVisitor visitor) {
+        for(int i=0; i< firstDimension.length; i++) {
+            doVisits(visitor, firstDimension[i], i);
+        }
+    }
+
+    private void doVisits(NodeVisitor visitor, GridDimension dimension, int...location) {
+        if(dimension.activations != null) {
+            int[] finalLocation = new int[location.length+1];
+            System.arraycopy(location, 0, finalLocation, 0, location.length);
+            for(int i=0; i<dimension.activations.length; i++) {
+                finalLocation[location.length] = i;
+                visitor.visit(at(finalLocation), finalLocation);
+            }
+        } else {
+            int[] finalLocation = new int[location.length+1];
+            System.arraycopy(location, 0, finalLocation, 0, location.length);
+            for(int i=0; i<dimension.dimensionIntersects.length; i++) {
+                finalLocation[location.length] = i;
+                doVisits(visitor, dimension.dimensionIntersects[i], finalLocation);
+            }
+        }
     }
 
 }
