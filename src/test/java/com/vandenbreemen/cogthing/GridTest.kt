@@ -20,4 +20,11 @@ class GridTest {
         assertEquals(grid.at(1,2).activation, 3.14)
     }
 
+    @Test
+    fun `should update cell in 3-space`() {
+        val grid = Grid(3, 10)
+        grid.at(1,2, 3).activation = 3.14;
+        assertEquals(grid.at(1,2, 3).activation, 3.14)
+    }
+
 }
