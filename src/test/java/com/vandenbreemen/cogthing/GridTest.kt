@@ -27,4 +27,16 @@ class GridTest {
         assertEquals(grid.at(1,2, 3).activation, 3.14)
     }
 
+    @Test
+    fun `should provide for creating copies of a grid`() {
+        val grid = Grid(3, 10)
+        val copy = grid.copy()
+        grid.at(1,2, 3).activation = 3.14;
+
+        assertEquals(copy.at(1,2, 3).activation, 0.0)
+
+        copy.at(3,2,1).activation = 1.22;
+        assertEquals(1.22, copy.at(3,2,1).activation);
+    }
+
 }

@@ -16,6 +16,21 @@ public class Grid {
         private GridDimension(double[] activations) {
             this.activations = activations;
         }
+
+
+        private GridDimension copy() {
+            if(activations != null) {
+                double[] copiedActivations = new double[activations.length];
+                System.arraycopy(activations, 0, copiedActivations, 0, activations.length);
+                return new GridDimension(copiedActivations);
+            } else {
+                GridDimension[] copiedIntersects = new GridDimension[dimensionIntersects.length];
+                for(int i=0; i<copiedIntersects.length; i++) {
+                    copiedIntersects[i] = dimensionIntersects[i].copy();
+                }
+                return new GridDimension(copiedIntersects);
+            }
+        }
     }
 
     private GridDimension[] firstDimension;
@@ -23,6 +38,10 @@ public class Grid {
 
     public Grid(int numDimensions, int numPoints) {
         firstDimension = buildDimensions(numDimensions-1, numPoints);
+    }
+
+    private Grid(GridDimension[] firstDimension) {
+        this.firstDimension = firstDimension;
     }
 
     private GridDimension[] buildDimensions(int numDimensions, int numPoints) {
@@ -66,6 +85,14 @@ public class Grid {
             System.arraycopy(location, 0, nextLocationSequence, 0, location.length-1);
             return doFetchPoint(from.dimensionIntersects[location[0]], nextLocationSequence);
         }
+    }
+
+    public Grid copy() {
+        GridDimension[] copiedDimensions = new GridDimension[firstDimension.length];
+        for(int i=0; i<copiedDimensions.length; i++) {
+            copiedDimensions[i] = firstDimension[i].copy();
+        }
+        return new Grid(copiedDimensions);
     }
 
 }
