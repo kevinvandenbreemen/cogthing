@@ -79,10 +79,10 @@ public class Grid {
 
         int[] nextLocationSequence = new int[massaged.length-1];
         System.arraycopy(massaged, 1, nextLocationSequence, 0, massaged.length-1);
-        return doFetchPoint(firstDimension[massaged[0]], nextLocationSequence);
+        return doFetchPoint(firstDimension[massaged[0]], location, nextLocationSequence);
     }
 
-    private GridPoint doFetchPoint(GridDimension from, int ... location) {
+    private GridPoint doFetchPoint(GridDimension from, int[] originalPoint, int ... location) {
         if(location.length == 1) {
             return new GridPoint() {
 
@@ -95,11 +95,23 @@ public class Grid {
                 public void setActivation(double activation) {
                     from.activations[location[0]] = activation;
                 }
+
+                @Override
+                public GridPoint adjacent(int dimension, boolean frontBack) {
+                    int[] locationCopy = new int[originalPoint.length];
+                    System.arraycopy(originalPoint, 0, locationCopy, 0, originalPoint.length);
+                    if(frontBack) {
+                        locationCopy[dimension] += 1;
+                    } else {
+                        locationCopy[dimension] -= 1;
+                    }
+                    return at(locationCopy);
+                }
             };
         } else {
             int[] nextLocationSequence = new int[location.length-1];
             System.arraycopy(location, 0, nextLocationSequence, 0, location.length-1);
-            return doFetchPoint(from.dimensionIntersects[location[0]], nextLocationSequence);
+            return doFetchPoint(from.dimensionIntersects[location[0]], originalPoint, nextLocationSequence);
         }
     }
 
