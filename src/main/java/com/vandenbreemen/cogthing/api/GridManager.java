@@ -3,6 +3,8 @@ package com.vandenbreemen.cogthing.api;
 import com.vandenbreemen.cogthing.Grid;
 import com.vandenbreemen.cogthing.GridPoint;
 
+import java.util.Random;
+
 public class GridManager {
 
     private Grid grid;
@@ -39,6 +41,19 @@ public class GridManager {
 
         //  Optional post processing/visit on updated the grid
         after.visit(grid);
+    }
+
+    /**
+     * Populates the grid with random values between 0 and 1
+     */
+    public void populateRandom() {
+        Random random = new Random(System.nanoTime());
+        grid.visit(new Grid.NodeVisitor() {
+            @Override
+            public void visit(GridPoint gridPoint, int... location) {
+                gridPoint.setActivation(random.nextDouble());
+            }
+        });
     }
 
 }
