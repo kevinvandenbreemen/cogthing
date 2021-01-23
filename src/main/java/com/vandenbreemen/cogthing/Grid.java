@@ -66,9 +66,20 @@ public class Grid {
     }
 
     public GridPoint at(int ... location) {
-        int[] nextLocationSequence = new int[location.length-1];
-        System.arraycopy(location, 1, nextLocationSequence, 0, location.length-1);
-        return doFetchPoint(firstDimension[location[0]], nextLocationSequence);
+
+        int[] massaged = new int[location.length];
+        System.arraycopy(location, 0, massaged, 0, location.length);
+        for(int i=0; i<location.length; i++) {
+            if(massaged[i] < 0) {
+                massaged[i] = location.length + massaged[i];
+            } else {
+                massaged[i] %= location.length;
+            }
+        }
+
+        int[] nextLocationSequence = new int[massaged.length-1];
+        System.arraycopy(massaged, 1, nextLocationSequence, 0, massaged.length-1);
+        return doFetchPoint(firstDimension[massaged[0]], nextLocationSequence);
     }
 
     private GridPoint doFetchPoint(GridDimension from, int ... location) {
