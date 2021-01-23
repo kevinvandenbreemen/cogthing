@@ -71,9 +71,9 @@ public class Grid {
         System.arraycopy(location, 0, massaged, 0, location.length);
         for(int i=0; i<location.length; i++) {
             if(massaged[i] < 0) {
-                massaged[i] = location.length + massaged[i];
+                massaged[i] = firstDimension.length + massaged[i];
             } else {
-                massaged[i] %= location.length;
+                massaged[i] %= firstDimension.length;
             }
         }
 
