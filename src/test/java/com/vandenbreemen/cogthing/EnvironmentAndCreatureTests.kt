@@ -60,5 +60,10 @@ class EnvironmentAndCreatureTests {
         creature.at(1,4).activation shouldBeEqualTo 42.0
 
         creature.at(1,4).adjacent(0, false).activation shouldBeEqualTo sensorLeft.activation
+        brain.at(0,3).adjacent(0, false).activation shouldBeEqualTo sensorLeft.activation
+        brain.at(7, 3).adjacent(0, true).activation shouldBeEqualTo sensorRight.activation
+        brain.at(8, 3).adjacent(0, false).activation shouldBeEqualTo sensorLeft.activation
+        brain.at(3,7).adjacent(1, true).activation shouldBeEqualTo sensorUp.activation
+        brain.at(3,0).adjacent(1, false).activation shouldBeEqualTo sensorDown.activation
     }
 }

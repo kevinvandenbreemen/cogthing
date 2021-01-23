@@ -22,7 +22,7 @@ public class SubGrid {
         int[] transformed = new int[location.length];
         int diff;
         for(int i=0; i<transformed.length; i++) {
-            diff = fromAndToPositions[(2*i)+1] - fromAndToPositions[2*i];
+            diff = (fromAndToPositions[(2*i)+1] - fromAndToPositions[2*i]) + 1; //  Recall, range of subset is inclusive
             transformed[i] = location[i] % diff;
             transformed[i] += fromAndToPositions[2*i];
         }
