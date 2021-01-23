@@ -135,4 +135,27 @@ public class Grid {
         }
     }
 
+    /**
+     * Get the number of axes this grid supports
+     * @return
+     */
+    public int getNumDimensions() {
+        int result =  doGetNumDim(firstDimension[0], 1);
+        return result;
+    }
+
+    private int doGetNumDim(GridDimension dim, int numDim) {
+        if(dim.dimensionIntersects != null) {
+            return doGetNumDim(dim.dimensionIntersects[0], numDim + 1);
+        }
+        return numDim + 1;
+    }
+
+    int getNumPoints() {
+        return firstDimension.length;
+    }
+
+    public SubGrid subGrid(int ... fromAndToDimensions) {
+        return new SubGrid(this, fromAndToDimensions);
+    }
 }
