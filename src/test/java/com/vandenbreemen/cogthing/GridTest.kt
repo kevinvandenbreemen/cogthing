@@ -36,6 +36,7 @@ class GridTest {
 
         copy.at(3,2,1).activation = 1.22;
         assertEquals(1.22, copy.at(3,2,1).activation);
+        assertEquals(0.0, grid.at(3,2,1).activation)
     }
 
     @Test
