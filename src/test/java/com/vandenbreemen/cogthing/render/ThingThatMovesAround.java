@@ -83,8 +83,6 @@ public class ThingThatMovesAround implements SystemModel {
                 if(location[0] == 2 && location[1] == 2) {  //  Center location
 
                     double min = 1;
-
-                    GridPoint currentDirectionCostRegister = null; //  Store random value to artificially inflate the cost of moving in the direction
                     int preferredDimension = -1;
                     boolean preferredForward =  false;
                     for(int i=0; i<NUM_DIMENSIONS; i++) {
@@ -102,31 +100,20 @@ public class ThingThatMovesAround implements SystemModel {
                             min = directionBackward.getActivation();
                             preferredDimension = i;
                             preferredForward = false;
-                            preferredDirection = directionBackward;
                         }
                         else if(directionForward.getActivation() < min) {
                             min = directionForward.getActivation();
                             preferredDimension = i;
                             preferredForward = true;
-                            preferredDirection = directionForward;
                         }
                         else {
                             continue;
                         }
 
-                        if(preferredDirection == directionForward) {
-                            //directionBackward.adjacent(nonIAxis, true).setActivation(0);
-                        } else {
-                            //directionForward.adjacent(nonIAxis, true).setActivation(0);
-                        }
-
-                        currentDirectionCostRegister = preferredDirection.adjacent(nonIAxis, true);
-
                     }
 
                     if(preferredDimension >= 0) {
                         Random rand = new Random(System.nanoTime());
-                        currentDirectionCostRegister.setActivation(rand.nextDouble());
                         if(preferredForward) {
                             lifeformLocation[preferredDimension] += 1;
                         } else {
