@@ -87,21 +87,14 @@ public class ThingThatMovesAround implements SystemModel {
                     boolean preferredForward =  false;
                     for(int i=0; i<NUM_DIMENSIONS; i++) {
 
-                        int nonIAxis = i+1;
-                        if(nonIAxis >= NUM_DIMENSIONS) {
-                            nonIAxis = 0;
-                        }
-
-                        GridPoint preferredDirection = null;   //  Direction to go that is opposite of costliest direction
-
                         GridPoint directionForward = gridPoint.adjacent(i, true);
                         GridPoint directionBackward = gridPoint.adjacent(i, false);
-                        if(directionBackward.getActivation() < min) {
+                        if(directionBackward.getActivation()< min) {
                             min = directionBackward.getActivation();
                             preferredDimension = i;
                             preferredForward = false;
                         }
-                        else if(directionForward.getActivation() < min) {
+                        if(directionForward.getActivation() < min) {
                             min = directionForward.getActivation();
                             preferredDimension = i;
                             preferredForward = true;
