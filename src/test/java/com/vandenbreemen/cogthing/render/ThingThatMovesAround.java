@@ -118,6 +118,8 @@ public class ThingThatMovesAround implements SystemModel {
                         }
 
                         lifeformLocation[preferredDimension] %= ENV_SIZE;
+
+                        gridPoint.setActivation(-min);
                     }
 
                 }
