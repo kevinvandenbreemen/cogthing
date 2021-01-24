@@ -163,7 +163,7 @@ public class Grid {
         return numDim + 1;
     }
 
-    int getNumPoints() {
+    public int getNumPoints() {
         return firstDimension.length;
     }
 
