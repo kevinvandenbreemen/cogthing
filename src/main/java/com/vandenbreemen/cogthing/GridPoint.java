@@ -13,4 +13,10 @@ public interface GridPoint {
      * @return
      */
     GridPoint adjacent(int dimension, boolean frontBack);
+
+    /**
+     * Get all points adjacent to this point (von Neumann neighbourhood)
+     * @return
+     */
+    GridPoint[] vonNeumannNeighbourhood();
 }

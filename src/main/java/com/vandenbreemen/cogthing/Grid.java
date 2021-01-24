@@ -107,6 +107,16 @@ public class Grid {
                     }
                     return at(locationCopy);
                 }
+
+                @Override
+                public GridPoint[] vonNeumannNeighbourhood() {
+                    GridPoint[] points = new GridPoint[getNumDimensions() * 2];
+                    for(int dim = 0; dim < getNumDimensions()*2; dim += 2) {
+                        points[dim] = adjacent(dim/2, false);
+                        points[dim+1] = adjacent(dim/2, true);
+                    }
+                    return points;
+                }
             };
         } else {
             int[] nextLocationSequence = new int[location.length-1];

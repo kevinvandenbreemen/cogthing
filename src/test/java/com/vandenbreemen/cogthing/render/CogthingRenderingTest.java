@@ -13,26 +13,6 @@ import java.awt.*;
 
 class GridModel implements SystemModel {
 
-    private class MiniMaxColorCalculator implements Grid.NodeVisitor {
-
-        double maxCol = 0;
-        double minCol = 0;
-
-        @Override
-        public void visit(GridPoint gridPoint, int... location) {
-            if(gridPoint.getActivation() < minCol) {
-                minCol = gridPoint.getActivation();
-            }
-            if(gridPoint.getActivation() > maxCol) {
-                maxCol = gridPoint.getActivation();
-            }
-        }
-
-        float calculateColorValue(double activation) {
-            return (int)Math.ceil(((maxCol - minCol) / 256) * activation);
-        }
-    }
-
     private GridManager gridManager;
 
     public GridModel(GridManager gridManager) {
