@@ -14,6 +14,7 @@ import java.util.Random;
 public class ThingThatMovesAround implements SystemModel {
 
     public static final int ENV_SIZE = 100;
+    public static final int NUM_DIMENSIONS = 2;
 
     private Grid lifeformGrid;
     private SubGrid brain;
@@ -85,60 +86,54 @@ public class ThingThatMovesAround implements SystemModel {
 
                     double max = 0;
 
-                    GridPoint moveDirection = null;
+                    GridPoint currentDirectionCostRegister = null; //  Store random value to artificially inflate the cost of moving in the direction
+                    int preferredDimension = -1;
+                    boolean preferredForward =  false;
+                    for(int i=0; i<NUM_DIMENSIONS; i++) {
 
-                    GridPoint up = gridPoint.adjacent(1, true);
-                    GridPoint down = gridPoint.adjacent(1, false);
-                    GridPoint left = gridPoint.adjacent(0, false);
-                    GridPoint right = gridPoint.adjacent(0, true);
+                        GridPoint preferredDirection = null;   //  Direction to go that is opposite of costliest direction
 
-                    //  Set up registers to tell the system what direction we're going in
-                    GridPoint goingUp = up.adjacent(0, true);
-                    GridPoint goingDown = down.adjacent(0, true);
-                    GridPoint goingLeft = left.adjacent(1, true);
-                    GridPoint goingRight = right.adjacent(1, true);
+                        GridPoint directionForward = gridPoint.adjacent(i, true);
+                        GridPoint directionBackward = gridPoint.adjacent(i, false);
+                        if(directionBackward.getActivation() > max) {
+                            max = directionBackward.getActivation();
+                            preferredDimension = i;
+                            preferredForward = true;
+                            preferredDirection = directionForward;
+                        }
+                        else if(directionForward.getActivation() > max) {
+                            max = directionForward.getActivation();
+                            preferredDimension = i;
+                            preferredForward = false;
+                            preferredDirection = directionBackward;
+                        }
+                        else {
+                            continue;
+                        }
 
-                    if(up.getActivation() > max) {
-                        max = up.getActivation();
-                        moveDirection = down;
-                    }
-                    if(down.getActivation() > max) {
-                        max = down.getActivation();
-                        moveDirection = up;
-                    }
-                    if(left.getActivation() > max) {
-                        max = left.getActivation();
-                        moveDirection = right;
-                    }
-                    if(right.getActivation() > max) {
-                        max = right.getActivation();
-                        moveDirection = left;
-                    }
+                        int nonIAxis = i+1;
+                        if(nonIAxis >= NUM_DIMENSIONS) {
+                            nonIAxis = 0;
+                        }
+                        currentDirectionCostRegister = preferredDirection.adjacent(nonIAxis, true);
 
-                    Random rand = new Random(System.nanoTime());
-                    if(moveDirection == right) {
-                        lifeformLocation[0] += 1;
-                        goingRight.setActivation(rand.nextDouble());
-                    } else if (moveDirection == left) {
-                        lifeformLocation[0] -= 1;
-                        goingLeft.setActivation(rand.nextDouble());
-                    } else if (moveDirection == up) {
-                        lifeformLocation[1] += 1;
-                        goingUp.setActivation(rand.nextDouble());
-                    } else if (moveDirection == down) {
-                        lifeformLocation[1] -= 1;
-                        goingDown.setActivation(rand.nextDouble());
                     }
 
-                    if(lifeformLocation[0] < 0) {
-                        lifeformLocation[0] = ENV_SIZE-1;
-                    }
-                    if(lifeformLocation[1] < 0) {
-                        lifeformLocation[1] = ENV_SIZE-1;
-                    }
+                    if(preferredDimension >= 0) {
+                        Random rand = new Random(System.nanoTime());
+                        currentDirectionCostRegister.setActivation(rand.nextDouble());
+                        if(preferredForward) {
+                            lifeformLocation[preferredDimension] += 1;
+                        } else {
+                            lifeformLocation[preferredDimension] -= 1;
+                        }
 
-                    lifeformLocation[0] %= ENV_SIZE;
-                    lifeformLocation[1] %= ENV_SIZE;
+                        if(lifeformLocation[preferredDimension] < 0) {
+                            lifeformLocation[preferredDimension] = ENV_SIZE-1;
+                        }
+
+                        lifeformLocation[preferredDimension] %= ENV_SIZE;
+                    }
 
                 }
             }
