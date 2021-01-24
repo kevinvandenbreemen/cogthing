@@ -82,37 +82,44 @@ public class ThingThatMovesAround implements SystemModel {
 
                 if(location[0] == 2 && location[1] == 2) {  //  Center location
 
-                    double max = 0;
+                    double min = 1;
 
                     GridPoint currentDirectionCostRegister = null; //  Store random value to artificially inflate the cost of moving in the direction
                     int preferredDimension = -1;
                     boolean preferredForward =  false;
                     for(int i=0; i<NUM_DIMENSIONS; i++) {
 
+                        int nonIAxis = i+1;
+                        if(nonIAxis >= NUM_DIMENSIONS) {
+                            nonIAxis = 0;
+                        }
+
                         GridPoint preferredDirection = null;   //  Direction to go that is opposite of costliest direction
 
                         GridPoint directionForward = gridPoint.adjacent(i, true);
                         GridPoint directionBackward = gridPoint.adjacent(i, false);
-                        if(directionBackward.getActivation() > max) {
-                            max = directionBackward.getActivation();
-                            preferredDimension = i;
-                            preferredForward = true;
-                            preferredDirection = directionForward;
-                        }
-                        else if(directionForward.getActivation() > max) {
-                            max = directionForward.getActivation();
+                        if(directionBackward.getActivation() < min) {
+                            min = directionBackward.getActivation();
                             preferredDimension = i;
                             preferredForward = false;
                             preferredDirection = directionBackward;
+                        }
+                        else if(directionForward.getActivation() < min) {
+                            min = directionForward.getActivation();
+                            preferredDimension = i;
+                            preferredForward = true;
+                            preferredDirection = directionForward;
                         }
                         else {
                             continue;
                         }
 
-                        int nonIAxis = i+1;
-                        if(nonIAxis >= NUM_DIMENSIONS) {
-                            nonIAxis = 0;
+                        if(preferredDirection == directionForward) {
+                            //directionBackward.adjacent(nonIAxis, true).setActivation(0);
+                        } else {
+                            //directionForward.adjacent(nonIAxis, true).setActivation(0);
                         }
+
                         currentDirectionCostRegister = preferredDirection.adjacent(nonIAxis, true);
 
                     }
