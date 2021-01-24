@@ -1,5 +1,7 @@
 package com.vandenbreemen.cogthing
 
+import org.amshove.kluent.`should be empty`
+import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 
@@ -64,6 +66,33 @@ class GridTest {
         assertEquals(8, count)
         print(expectedPoints)
         assertTrue(expectedPoints.isEmpty())
+    }
+
+    @Test
+    fun `should provide a way to visit all nodes in a sub-grid`() {
+        val grid = Grid(2, 5)
+        var count = 0
+
+        val expectedPoints = mutableListOf(
+                listOf(1,1),
+                listOf(1,2),
+                listOf(1,3),
+                listOf(2,1),
+                listOf(2,2),
+                listOf(2,3),
+                listOf(3,1),
+                listOf(3,2),
+                listOf(3,3)
+        )
+
+        grid.subGrid(1, 3, 1, 3).visit(Grid.NodeVisitor { gridPoint, location ->
+            print(location.asList())
+            expectedPoints.remove(location.asList())
+            count++
+        })
+
+        count shouldBeEqualTo 9
+        expectedPoints.`should be empty`()
     }
 
 }

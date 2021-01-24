@@ -124,16 +124,20 @@ public class Grid {
     }
 
     public void visit(NodeVisitor visitor) {
-        for(int i=0; i< firstDimension.length; i++) {
-            doVisits(visitor, firstDimension[i], i);
+        visit(visitor, 0, firstDimension.length-1);
+    }
+
+    public void visit(NodeVisitor visitor, int startPoint, int endPoint) {
+        for(int i=startPoint; i<=endPoint; i++) {
+            doVisits(visitor, startPoint, endPoint, firstDimension[i], i);
         }
     }
 
-    private void doVisits(NodeVisitor visitor, GridDimension dimension, int...location) {
+    private void doVisits(NodeVisitor visitor, int startPoint, int endPoint, GridDimension dimension, int...location) {
         if(dimension.activations != null) {
             int[] finalLocation = new int[location.length+1];
             System.arraycopy(location, 0, finalLocation, 0, location.length);
-            for(int i=0; i<dimension.activations.length; i++) {
+            for(int i=startPoint; i<=endPoint; i++) {
                 finalLocation[location.length] = i;
                 visitor.visit(at(finalLocation), finalLocation);
             }
@@ -142,7 +146,7 @@ public class Grid {
             System.arraycopy(location, 0, finalLocation, 0, location.length);
             for(int i=0; i<dimension.dimensionIntersects.length; i++) {
                 finalLocation[location.length] = i;
-                doVisits(visitor, dimension.dimensionIntersects[i], finalLocation);
+                doVisits(visitor, startPoint, endPoint, dimension.dimensionIntersects[i], finalLocation);
             }
         }
     }

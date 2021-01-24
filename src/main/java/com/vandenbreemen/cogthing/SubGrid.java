@@ -30,4 +30,8 @@ public class SubGrid {
         return parent.at(transformed);
     }
 
+    public void visit(Grid.NodeVisitor visitor) {
+        parent.visit(visitor, fromAndToPositions[0], fromAndToPositions[1]);
+    }
+
 }
