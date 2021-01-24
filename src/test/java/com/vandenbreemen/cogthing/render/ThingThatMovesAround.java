@@ -71,7 +71,7 @@ public class ThingThatMovesAround implements SystemModel {
                 for(GridPoint p : points) {
                     sum += p.getActivation();
                 }
-                System.out.println("SUM @ ("+ location[0]+", " +location[1]+")="+sigmoid(sum));
+
                 gridPoint.setActivation(sigmoid(sum));
             }
         });
@@ -84,7 +84,6 @@ public class ThingThatMovesAround implements SystemModel {
 
                 if(location[0] == 2 && location[1] == 2) {  //  Center location
 
-                    //System.out.println("("+location[0]+", "+location[1]+")");
                     double max = 0;
 
                     GridPoint moveDirection = null;
