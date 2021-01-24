@@ -3,7 +3,6 @@ package com.vandenbreemen.cogthing.render;
 import com.vandenbreemen.cogthing.Grid;
 import com.vandenbreemen.cogthing.GridPoint;
 import com.vandenbreemen.cogthing.SubGrid;
-import com.vandenbreemen.cogthing.api.GridManager;
 import com.vandenbreemen.jgdv.ApplicationWindow;
 import com.vandenbreemen.jgdv.mvp.SystemModel;
 import com.vandenbreemen.jgdv.mvp.SystemPresenter;
@@ -32,7 +31,6 @@ public class ThingThatMovesAround implements SystemModel {
         this.environment = new Grid(2, ENV_SIZE);
 
         brain = lifeformGrid.subGrid(1, 3, 1, 3);
-        new GridManager(environment).populateRandom();
 
         Random random = new Random(System.nanoTime());
         lifeformLocation = new int[]{
@@ -138,6 +136,10 @@ public class ThingThatMovesAround implements SystemModel {
                 }
             }
         });
+
+        if(environment.at(lifeformLocation).getActivation() == 0.0) {
+            environment.at(lifeformLocation).setActivation( new Random(System.nanoTime()).nextDouble() );
+        }
 
         MiniMaxColorCalculator calc = new MiniMaxColorCalculator();
         int numSquaresPerSide = environment.getNumPoints();
