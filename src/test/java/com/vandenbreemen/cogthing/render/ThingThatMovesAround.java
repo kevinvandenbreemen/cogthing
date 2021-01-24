@@ -17,7 +17,6 @@ public class ThingThatMovesAround implements SystemModel {
 
     private Grid lifeformGrid;
     private SubGrid brain;
-    private GridManager brainManager;
 
     private Grid environment;
 
