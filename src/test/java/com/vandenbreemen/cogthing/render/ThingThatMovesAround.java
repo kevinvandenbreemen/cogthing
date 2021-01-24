@@ -39,6 +39,10 @@ public class ThingThatMovesAround implements SystemModel {
         };
     }
 
+    double sigmoid(double x) {
+        return (1/( 1 + Math.pow(Math.E,(-1*x))));
+    }
+
     @Override
     public void render(Graphics2D graphics2D, Dimension size) {
 
@@ -56,10 +60,6 @@ public class ThingThatMovesAround implements SystemModel {
         sensorDown.setActivation(currentLocationInEnvironmentGrid.adjacent(1, false).getActivation());
 
         brain.visit(new Grid.NodeVisitor() {
-
-            double sigmoid(double x) {
-                return (1/( 1 + Math.pow(Math.E,(-1*x))));
-            }
 
             @Override
             public void visit(GridPoint gridPoint, int... location) {
