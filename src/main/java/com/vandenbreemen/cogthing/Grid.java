@@ -3,7 +3,7 @@ package com.vandenbreemen.cogthing;
 /**
  * Cubic grid
  */
-public class Grid {
+public class Grid implements IGrid {
 
     @FunctionalInterface
     public interface NodeVisitor {
@@ -65,7 +65,8 @@ public class Grid {
         return dimension;
     }
 
-    public GridPoint at(int ... location) {
+    @Override
+    public GridPoint at(int... location) {
 
         int[] massaged = new int[location.length];
         System.arraycopy(location, 0, massaged, 0, location.length);
@@ -125,7 +126,8 @@ public class Grid {
         }
     }
 
-    public Grid copy() {
+    @Override
+    public IGrid copy() {
         GridDimension[] copiedDimensions = new GridDimension[firstDimension.length];
         for(int i=0; i<copiedDimensions.length; i++) {
             copiedDimensions[i] = firstDimension[i].copy();
@@ -133,6 +135,7 @@ public class Grid {
         return new Grid(copiedDimensions);
     }
 
+    @Override
     public void visit(NodeVisitor visitor) {
         visit(visitor, 0, firstDimension.length-1);
     }
@@ -165,6 +168,7 @@ public class Grid {
      * Get the number of axes this grid supports
      * @return
      */
+    @Override
     public int getNumDimensions() {
         int result =  doGetNumDim(firstDimension[0], 1);
         return result;
@@ -177,6 +181,7 @@ public class Grid {
         return numDim + 1;
     }
 
+    @Override
     public int getNumPoints() {
         return firstDimension.length;
     }

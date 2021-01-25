@@ -2,14 +2,15 @@ package com.vandenbreemen.cogthing.api;
 
 import com.vandenbreemen.cogthing.Grid;
 import com.vandenbreemen.cogthing.GridPoint;
+import com.vandenbreemen.cogthing.IGrid;
 
 import java.util.Random;
 
 public class GridManager {
 
-    private Grid grid;
+    private IGrid grid;
 
-    public GridManager(Grid grid) {
+    public GridManager(IGrid grid) {
         this.grid = grid;
     }
 
@@ -17,7 +18,7 @@ public class GridManager {
      * For testing.  Returns a copy of the grid
      * @return
      */
-    public Grid getGrid() {
+    public IGrid getGrid() {
         return grid.copy();
     }
 
@@ -27,7 +28,7 @@ public class GridManager {
         before.visit(grid);
 
         //  The nodes in the copy do things based on values in the original grid
-        Grid copy = grid.copy();
+        IGrid copy = grid.copy();
         Grid.NodeVisitor visitor = new Grid.NodeVisitor() {
             @Override
             public void visit(GridPoint gridPoint, int... location) {
@@ -41,6 +42,33 @@ public class GridManager {
 
         //  Optional post processing/visit on updated the grid
         after.visit(grid);
+    }
+
+    /**
+     * Update the grid at the given point to data contained in the given point
+     * @param usingData
+     * @param atPoint
+     */
+    public void update(GridPoint usingData, int ... atPoint) {
+        grid.at(atPoint).setActivation(usingData.getActivation());
+    }
+
+    /**
+     * Gets grid point on underlying grid
+     * @param at
+     * @return
+     */
+    public GridPoint getPoint(int ... at) {
+        return grid.at(at);
+    }
+
+    /**
+     * Updates the underlying grid with the given grid.  This method is provided as processing re-sets
+     * the internal reference
+     * @param with
+     */
+    public void update(IGrid with) {
+        this.grid = with;
     }
 
     /**

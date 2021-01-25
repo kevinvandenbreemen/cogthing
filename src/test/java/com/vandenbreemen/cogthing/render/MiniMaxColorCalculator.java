@@ -18,8 +18,20 @@ class MiniMaxColorCalculator implements Grid.NodeVisitor {
         }
     }
 
+    @Override
+    public String toString() {
+        return "MiniMaxColorCalculator{" +
+                "maxCol=" + maxCol +
+                ", minCol=" + minCol +
+                '}';
+    }
+
     float calculateColorValue(double activation) {
-        float increment = (float)((maxCol - minCol) / 256f);
-        return (float)( (increment * activation) * 256);
+        float increment = (float)( 1 / (maxCol - minCol));
+        float ret = (float)( ( (activation - minCol) * increment ));
+        if(ret > 1 || ret < 0) {
+            System.out.println("HUZZAH");
+        }
+        return ret;
     }
 }

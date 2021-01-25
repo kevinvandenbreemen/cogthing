@@ -2,6 +2,7 @@ package com.vandenbreemen.cogthing.render;
 
 import com.vandenbreemen.cogthing.Grid;
 import com.vandenbreemen.cogthing.GridPoint;
+import com.vandenbreemen.cogthing.IGrid;
 import com.vandenbreemen.cogthing.api.GridManager;
 import com.vandenbreemen.cogthing.api.GridNodeVisitor;
 import com.vandenbreemen.cogthing.api.GridVisitor;
@@ -27,7 +28,7 @@ class GridModel implements SystemModel {
 
         gridManager.process(new GridVisitor() {
             @Override
-            public void visit(Grid grid) {
+            public void visit(IGrid grid) {
                 gridManager.populateRandom();
             }
         }, new GridNodeVisitor() {
@@ -37,7 +38,7 @@ class GridModel implements SystemModel {
             }
 
             @Override
-            public void visit(GridPoint point, Grid grid, int... location) {
+            public void visit(GridPoint point, IGrid grid, int... location) {
                 //  Step 1 fetch everything adjacent
                 GridPoint currentPoint = grid.at(location);
                 GridPoint up = currentPoint.adjacent(1, true);
@@ -55,7 +56,7 @@ class GridModel implements SystemModel {
             }
         }, new GridVisitor() {
             @Override
-            public void visit(Grid grid) {
+            public void visit(IGrid grid) {
                 MiniMaxColorCalculator calc = new MiniMaxColorCalculator();
                 grid.visit(calc);
 

@@ -1,7 +1,7 @@
 package com.vandenbreemen.cogthing.api;
 
-import com.vandenbreemen.cogthing.Grid;
 import com.vandenbreemen.cogthing.GridPoint;
+import com.vandenbreemen.cogthing.IGrid;
 
 @FunctionalInterface
 public interface GridNodeVisitor {
@@ -12,6 +12,6 @@ public interface GridNodeVisitor {
      * @param grid      The rest of the grid
      * @param location  Location of the point
      */
-    void visit(GridPoint point, Grid grid, int...location);
+    void visit(GridPoint point, IGrid grid, int...location);
 
 }

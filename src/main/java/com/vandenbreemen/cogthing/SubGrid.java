@@ -1,11 +1,13 @@
 package com.vandenbreemen.cogthing;
 
-public class SubGrid {
+import kotlin.NotImplementedError;
 
-    private Grid parent;
+public class SubGrid implements IGrid {
+
+    private IGrid parent;
     private int[] fromAndToPositions;
 
-    SubGrid(Grid parent, int...fromAndToPositions) {
+    SubGrid(IGrid parent, int...fromAndToPositions) {
         if(fromAndToPositions.length != parent.getNumDimensions()*2) {
             throw new RuntimeException("Invalid dimension specification -- expected " + parent.getNumDimensions()*2+", but got "+ fromAndToPositions.length);
         }
@@ -30,8 +32,27 @@ public class SubGrid {
         return parent.at(transformed);
     }
 
+    @Override
+    public IGrid copy() {
+        return new SubGrid(parent.copy(), fromAndToPositions);
+    }
+
     public void visit(Grid.NodeVisitor visitor) {
         parent.visit(visitor, fromAndToPositions[0], fromAndToPositions[1]);
+    }
+
+    @Override
+    public void visit(Grid.NodeVisitor visitor, int startPoint, int endPoint) {
+        throw new NotImplementedError("Visiting sub-grids along sub-ranges is not yet supported");
+    }
+
+    @Override
+    public int getNumDimensions() {
+        return parent.getNumDimensions();
+    }
+
+    public int getNumPoints() {
+        return (fromAndToPositions[1]-fromAndToPositions[0])+1;
     }
 
 }

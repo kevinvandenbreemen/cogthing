@@ -2,13 +2,23 @@ package com.vandenbreemen.cogthing.render;
 
 import com.vandenbreemen.cogthing.Grid;
 import com.vandenbreemen.cogthing.GridPoint;
+import com.vandenbreemen.cogthing.IGrid;
 import com.vandenbreemen.cogthing.SubGrid;
+import com.vandenbreemen.cogthing.api.GridManager;
+import com.vandenbreemen.cogthing.api.GridNodeVisitor;
+import com.vandenbreemen.cogthing.api.GridVisitor;
 import com.vandenbreemen.jgdv.ApplicationWindow;
+import com.vandenbreemen.jgdv.mvp.LogicCycleObserver;
+import com.vandenbreemen.jgdv.mvp.MenuItem;
 import com.vandenbreemen.jgdv.mvp.SystemModel;
 import com.vandenbreemen.jgdv.mvp.SystemPresenter;
 
 import java.awt.*;
 import java.util.Random;
+
+interface TwoDimensionalFunction{
+    double compute(double x, double y);
+}
 
 public class ThingThatMovesAround implements SystemModel {
 
@@ -16,7 +26,7 @@ public class ThingThatMovesAround implements SystemModel {
     public static final int NUM_DIMENSIONS = 2;
 
     private Grid lifeformGrid;
-    private SubGrid brain;
+    GridManager brainManager;
 
     private Grid environment;
 
@@ -25,12 +35,17 @@ public class ThingThatMovesAround implements SystemModel {
      */
     private int[] lifeformLocation;
 
-    public ThingThatMovesAround() {
+    private TwoDimensionalFunction function;
+
+    public ThingThatMovesAround(TwoDimensionalFunction function) {
         super();
+        this.function = function;
         this.lifeformGrid = new Grid(2, 5);
         this.environment = new Grid(2, ENV_SIZE);
 
-        brain = lifeformGrid.subGrid(1, 3, 1, 3);
+
+        SubGrid brain = lifeformGrid.subGrid(1, 3, 1, 3);
+        this.brainManager = new GridManager(brain);
 
         Random random = new Random(System.nanoTime());
         lifeformLocation = new int[]{
@@ -59,11 +74,18 @@ public class ThingThatMovesAround implements SystemModel {
         sensorUp.setActivation(currentLocationInEnvironmentGrid.adjacent(1, true).getActivation());
         sensorDown.setActivation(currentLocationInEnvironmentGrid.adjacent(1, false).getActivation());
 
-        brain.visit(new Grid.NodeVisitor() {
+        GridPoint currentCenter = brainManager.getPoint(2,2);
+        brainManager.update(lifeformGrid.subGrid(1, 3, 1, 3));
+        brainManager.update(currentCenter, 2,2);
 
+        brainManager.process(new GridVisitor() {
             @Override
-            public void visit(GridPoint gridPoint, int... location) {
+            public void visit(IGrid grid) {
 
+            }
+        }, new GridNodeVisitor() {
+            @Override
+            public void visit(GridPoint gridPoint, IGrid grid, int... location) {
                 GridPoint[] points = gridPoint.vonNeumannNeighbourhood();
                 double sum = 0;
                 for(GridPoint p : points) {
@@ -72,14 +94,22 @@ public class ThingThatMovesAround implements SystemModel {
 
                 gridPoint.setActivation(sigmoid(sum));
             }
+        }, new GridVisitor() {
+            @Override
+            public void visit(IGrid grid) {
+
+            }
         });
 
         //  Determine next direction to move
-        brain.visit(new Grid.NodeVisitor() {
-
+        brainManager.process(new GridVisitor() {
             @Override
-            public void visit(GridPoint gridPoint, int... location) {
+            public void visit(IGrid grid) {
 
+            }
+        }, new GridNodeVisitor() {
+            @Override
+            public void visit(GridPoint gridPoint, IGrid grid, int... location) {
                 if(location[0] == 2 && location[1] == 2) {  //  Center location
 
                     double min = 1;
@@ -124,6 +154,11 @@ public class ThingThatMovesAround implements SystemModel {
 
                 }
             }
+        }, new GridVisitor() {
+            @Override
+            public void visit(IGrid grid) {
+
+            }
         });
 
         if(environment.at(lifeformLocation).getActivation() == 0.0) {
@@ -154,7 +189,70 @@ public class ThingThatMovesAround implements SystemModel {
     }
 
     public static void main(String[] args) {
-        ThingThatMovesAround thing = new ThingThatMovesAround();
-        new ApplicationWindow(new SystemPresenter(thing), "Thing that Moves Around", 1000,1000);
+        ThingThatMovesAround thing = new ThingThatMovesAround(new TwoDimensionalFunction() {
+            @Override
+            public double compute(double x, double y) {
+                if(x < 10 && y < 10) {
+                    return 0.5;
+                }
+                return 1;
+            }
+        });
+
+        SecondaryGridVisualizer visualizer = new SecondaryGridVisualizer("Brain", new SystemModel() {
+            @Override
+            public void render(Graphics2D graphics2D, Dimension size) {
+
+                IGrid brain = thing.brainManager.getGrid();
+
+                MiniMaxColorCalculator calc = new MiniMaxColorCalculator();
+                int numSquaresPerSide = brain.getNumPoints();
+                int numPixelsPerSide = (int)Math.ceil(size.height / numSquaresPerSide);
+                brain.visit(calc);
+
+                brain.visit(new Grid.NodeVisitor() {
+                    @Override
+                    public void visit(GridPoint point, int... location) {
+                        Color color;
+
+                        float calculatedRed = calc.calculateColorValue(point.getActivation());
+                        try {
+                            color = new Color(calculatedRed, 0, 0);
+                            graphics2D.setColor(color);
+                            graphics2D.fillRect((location[0]-1)*numPixelsPerSide, (location[1]-1)*numPixelsPerSide, numPixelsPerSide, numPixelsPerSide);
+                        } catch(Exception ex) {
+                            ex.printStackTrace();
+                        }
+
+
+                    }
+                });
+
+            }
+        });
+
+        SystemPresenter presenter = new SystemPresenter(thing);
+        ApplicationWindow window = new ApplicationWindow(presenter, "Thing that Moves Around", 1000,1000);
+
+        window.addFileMenuItem(new MenuItem() {
+            @Override
+            public String getName() {
+                return "BRAIN VISUALIZER";
+            }
+
+            @Override
+            public void doAction() {
+                visualizer.display();
+            }
+        });
+
+        presenter.addObserver(new LogicCycleObserver() {
+            @Override
+            public void update() {
+                if(visualizer.isVisible()) {
+                    visualizer.repaint();
+                }
+            }
+        });
     }
 }
