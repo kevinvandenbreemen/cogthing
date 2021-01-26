@@ -62,13 +62,25 @@ internal class LocalMinimaSeekerTest {
     }
 
     @Test
-    fun `should try random diection if all directions have same cost`() {
+    fun `should try random direction if all directions have same cost`() {
         val seeker = LocalMinimaSeeker(2, 100)
 
         seeker.setCurrentLocationInSpace(5, 5)
         seeker.setAdjacentValues(0.0, 0.0, 0.0, 0.0)
 
         for(i in 1 until 10) {
+            println(seeker.nextLocation.asList())
+        }
+    }
+
+    @Test
+    fun `should try random direction if two or more directions have same minimal cost`() {
+        val seeker = LocalMinimaSeeker(2, 100)
+
+        seeker.setCurrentLocationInSpace(5, 5)
+
+        for(i in 1 until 10) {
+            seeker.setAdjacentValues(1.0, 0.0, 0.0, 0.0)
             println(seeker.nextLocation.asList())
         }
     }

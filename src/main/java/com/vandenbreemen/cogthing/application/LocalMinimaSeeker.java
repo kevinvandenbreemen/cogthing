@@ -10,6 +10,10 @@ import java.util.Random;
 
 public class LocalMinimaSeeker extends Grid  {
 
+    private static final byte FORWARD = 1;
+    private static final byte BACKWARD = 2;
+    private static final byte BACKWARD_FORWARD = 3;
+
     /**
      * Current location in our space
      */
@@ -138,29 +142,60 @@ public class LocalMinimaSeeker extends Grid  {
         Random random = new Random(System.nanoTime());
         int dimensionToMoveAlong = 0;
         boolean moveForward = false;
+
+        byte[] viableDirections = new byte[getNumDimensions()];
+
         for(int dimension = 0; dimension<getNumDimensions(); dimension++) {
             double backValue = at(locationsToPerformLogicOn.get(2*dimension)).getActivation();
             double frontValue = at(locationsToPerformLogicOn.get((2*dimension) + 1)).getActivation();
 
             if(backValue < minValue || frontValue < minValue) {
-                dimensionToMoveAlong = dimension;
+                Arrays.fill(viableDirections, (byte)0);
+
                 if(backValue < frontValue) {
-                    moveForward = false;
+                    viableDirections[dimension] = BACKWARD;
                     minValue = backValue;
                 } else {
-                    moveForward = true;
+                    viableDirections[dimension] = FORWARD;
                     minValue = frontValue;
                 }
             } else if (backValue == minValue || frontValue == minValue) {
-                if(random.nextBoolean()) {
-                    dimensionToMoveAlong = dimension;
+                if(backValue == minValue && frontValue == minValue) {
+                    viableDirections[dimension] = BACKWARD_FORWARD;
+                } else {
                     if(backValue == minValue) {
-                        moveForward = false;
+                        viableDirections[dimension] = BACKWARD;
                     } else {
-                        moveForward = true;
+                        viableDirections[dimension] = FORWARD;
                     }
                 }
             }
+        }
+
+        //  Step 3a:  Determine all the directions we can move in
+        int directionCount = 0;
+        int lastViableDirectionIndex = -1;
+        for(int d = 0; d<getNumDimensions(); d++) {
+            if(viableDirections[d] > 0) {
+                directionCount ++;
+                lastViableDirectionIndex = d;
+            }
+        }
+        int[] directionLocations = new int[directionCount];
+        int dirIndex = 0;
+        for(int d = 0; d<getNumDimensions(); d++) {
+            if(viableDirections[d] > 0) {
+                directionLocations[dirIndex] = d;
+                dirIndex ++;
+            }
+        }
+
+        int nextDirectionIndex = directionCount > 1 ? random.nextInt(directionCount) : lastViableDirectionIndex;
+        dimensionToMoveAlong = nextDirectionIndex;
+        if(viableDirections[nextDirectionIndex] == BACKWARD_FORWARD) {
+            moveForward = random.nextBoolean();
+        } else {
+            moveForward = viableDirections[nextDirectionIndex] == FORWARD;
         }
 
         //  Step 4:  Make the move
@@ -177,9 +212,7 @@ public class LocalMinimaSeeker extends Grid  {
             currentLocationInSpace[dimensionToMoveAlong] %= environmentSize;
         }
 
-        int[] newCurrentLocation = new int[currentLocationInSpace.length];
-        System.arraycopy(currentLocationInSpace, 0, newCurrentLocation, 0, currentLocationInSpace.length);
-        onUpdateCurrentLocation(newCurrentLocation);
+
         return currentLocationInSpace;
     }
 
