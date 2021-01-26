@@ -19,4 +19,9 @@ public interface GridPoint {
      * @return
      */
     GridPoint[] vonNeumannNeighbourhood();
+
+    /**
+     * get the location of this point in the grid
+     */
+    int[] location();
 }

@@ -112,4 +112,11 @@ class GridTest {
         grid.at(2,2,2,2).activation shouldBeEqualTo  1.0
     }
 
+    @Test
+    fun `points should provide their original locations`() {
+        val grid = Grid(5, 10)
+        val point = grid.at(1,2,3,4,5)
+        point.location().asList() shouldBeEqualTo listOf(1,2,3,4,5)
+    }
+
 }

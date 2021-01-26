@@ -127,6 +127,11 @@ public class Grid implements IGrid {
                     }
                     return bld.toString();
                 }
+
+                @Override
+                public int[] location() {
+                    return originalPoint;
+                }
             };
         } else {
             int[] nextLocationSequence = new int[location.length-1];
