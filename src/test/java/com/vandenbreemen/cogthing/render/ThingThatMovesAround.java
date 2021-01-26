@@ -6,6 +6,7 @@ import com.vandenbreemen.cogthing.IGrid;
 import com.vandenbreemen.cogthing.SubGrid;
 import com.vandenbreemen.cogthing.api.GridManager;
 import com.vandenbreemen.cogthing.api.GridNodeVisitor;
+import com.vandenbreemen.cogthing.api.GridToVectorSpace;
 import com.vandenbreemen.cogthing.api.GridVisitor;
 import com.vandenbreemen.jgdv.ApplicationWindow;
 import com.vandenbreemen.jgdv.mvp.LogicCycleObserver;
@@ -36,13 +37,14 @@ public class ThingThatMovesAround implements SystemModel {
     private int[] lifeformLocation;
 
     private TwoDimensionalFunction function;
+    private GridToVectorSpace gridToVectorSpace;
 
-    public ThingThatMovesAround(TwoDimensionalFunction function) {
+    public ThingThatMovesAround(TwoDimensionalFunction function, double ... minimax2D) {
         super();
         this.function = function;
         this.lifeformGrid = new Grid(2, 5);
         this.environment = new Grid(2, ENV_SIZE);
-
+        gridToVectorSpace = new GridToVectorSpace(environment, minimax2D);
 
         SubGrid brain = lifeformGrid.subGrid(1, 3, 1, 3);
         this.brainManager = new GridManager(brain);
@@ -55,7 +57,7 @@ public class ThingThatMovesAround implements SystemModel {
     }
 
     double sigmoid(double x) {
-        return (1/( 1 + Math.pow(Math.E,(-1*x))));
+        return (1/( 1 + Math.pow(Math.E,( (-8*x) +4))));
     }
 
     @Override
@@ -92,7 +94,9 @@ public class ThingThatMovesAround implements SystemModel {
                     sum += p.getActivation();
                 }
 
-                gridPoint.setActivation(sigmoid(sum));
+                if(sum > 0 ){
+                    gridPoint.setActivation(sigmoid(sum));
+                }
             }
         }, new GridVisitor() {
             @Override
@@ -112,6 +116,7 @@ public class ThingThatMovesAround implements SystemModel {
             public void visit(GridPoint gridPoint, IGrid grid, int... location) {
                 if(location[0] == 2 && location[1] == 2) {  //  Center location
 
+                    Random random = new Random(System.nanoTime());
                     double min = 1;
                     int preferredDimension = -1;
                     boolean preferredForward =  false;
@@ -119,15 +124,23 @@ public class ThingThatMovesAround implements SystemModel {
 
                         GridPoint directionForward = gridPoint.adjacent(i, true);
                         GridPoint directionBackward = gridPoint.adjacent(i, false);
-                        if(directionBackward.getActivation()< min) {
-                            min = directionBackward.getActivation();
-                            preferredDimension = i;
-                            preferredForward = false;
+                        if(directionBackward.getActivation() <= min) {
+                            if(directionBackward.getActivation() == min && random.nextBoolean()) {
+
+                            } else {
+                                min = directionBackward.getActivation();
+                                preferredDimension = i;
+                                preferredForward = false;
+                            }
                         }
-                        if(directionForward.getActivation() < min) {
-                            min = directionForward.getActivation();
-                            preferredDimension = i;
-                            preferredForward = true;
+                        if(directionForward.getActivation() <= min) {
+                            if(directionBackward.getActivation() == min && random.nextBoolean()) {
+                            } else {
+
+                                min = directionForward.getActivation();
+                                preferredDimension = i;
+                                preferredForward = true;
+                            }
                         }
                         else {
                             continue;
@@ -162,7 +175,8 @@ public class ThingThatMovesAround implements SystemModel {
         });
 
         if(environment.at(lifeformLocation).getActivation() == 0.0) {
-            environment.at(lifeformLocation).setActivation( new Random(System.nanoTime()).nextDouble() );
+            double[] xy = gridToVectorSpace.toVectorSpace(lifeformLocation);
+            environment.at(lifeformLocation).setActivation( sigmoid(function.compute(xy[0], xy[1])) );
         }
 
         MiniMaxColorCalculator calc = new MiniMaxColorCalculator();
@@ -192,12 +206,9 @@ public class ThingThatMovesAround implements SystemModel {
         ThingThatMovesAround thing = new ThingThatMovesAround(new TwoDimensionalFunction() {
             @Override
             public double compute(double x, double y) {
-                if(x < 10 && y < 10) {
-                    return 0.5;
-                }
-                return 1;
+                return x*x + y*y;   //  Crude parabaloid
             }
-        });
+        }, -1.0, 1.0, -1.0, 1.0);
 
         SecondaryGridVisualizer visualizer = new SecondaryGridVisualizer("Brain", new SystemModel() {
             @Override
