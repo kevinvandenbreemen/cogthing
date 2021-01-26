@@ -13,12 +13,12 @@ public class LocalMinimaSeeker extends Grid  {
     /**
      * Current location in our space
      */
-    private int[] currentLocationInSpace;
+    protected int[] currentLocationInSpace;
 
     /**
      * Number of points in the environment this seeker is exploring
      */
-    private int environmentSize;
+    protected int environmentSize;
 
     public LocalMinimaSeeker(int numDimensions, int environmentSize) {
         super(numDimensions, 5);
@@ -126,11 +126,7 @@ public class LocalMinimaSeeker extends Grid  {
 
                 //  If so, calculate its cost based on adjacent input and possible discount factor at center of grid
                 if(shouldDoMath) {
-                    double sum = 0.0;
-                    for(GridPoint point : gridPoint.vonNeumannNeighbourhood()) {
-                        sum += point.getActivation();
-                    }
-                    gridPoint.setActivation(sigmoid(sum));
+                    calculateMoveCost(gridPoint);
                 }
 
             }
@@ -180,7 +176,26 @@ public class LocalMinimaSeeker extends Grid  {
             currentLocationInSpace[dimensionToMoveAlong] %= environmentSize;
         }
 
+        int[] newCurrentLocation = new int[currentLocationInSpace.length];
+        System.arraycopy(currentLocationInSpace, 0, newCurrentLocation, 0, currentLocationInSpace.length);
+        onUpdateCurrentLocation(newCurrentLocation);
         return currentLocationInSpace;
+    }
+
+    protected void onUpdateCurrentLocation(int[] currentLocationInSpace) {
+
+    }
+
+    /**
+     * Calculate the move cost for the given point
+     * @param gridPoint
+     */
+    protected void calculateMoveCost(GridPoint gridPoint) {
+        double sum = 0.0;
+        for(GridPoint point : gridPoint.vonNeumannNeighbourhood()) {
+            sum += point.getActivation();
+        }
+        gridPoint.setActivation(sigmoid(sum));
     }
 
 
