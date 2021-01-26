@@ -3,11 +3,8 @@ package com.vandenbreemen.cogthing.render;
 import com.vandenbreemen.cogthing.Grid;
 import com.vandenbreemen.cogthing.GridPoint;
 import com.vandenbreemen.cogthing.IGrid;
-import com.vandenbreemen.cogthing.SubGrid;
-import com.vandenbreemen.cogthing.api.GridManager;
-import com.vandenbreemen.cogthing.api.GridNodeVisitor;
 import com.vandenbreemen.cogthing.api.GridToVectorSpace;
-import com.vandenbreemen.cogthing.api.GridVisitor;
+import com.vandenbreemen.cogthing.application.LocalMinimaSeeker;
 import com.vandenbreemen.jgdv.ApplicationWindow;
 import com.vandenbreemen.jgdv.mvp.LogicCycleObserver;
 import com.vandenbreemen.jgdv.mvp.MenuItem;
@@ -26,8 +23,7 @@ public class ThingThatMovesAround implements SystemModel {
     public static final int ENV_SIZE = 100;
     public static final int NUM_DIMENSIONS = 2;
 
-    private Grid lifeformGrid;
-    GridManager brainManager;
+    private LocalMinimaSeeker seeker;
 
     private Grid environment;
 
@@ -41,19 +37,17 @@ public class ThingThatMovesAround implements SystemModel {
 
     public ThingThatMovesAround(TwoDimensionalFunction function, double ... minimax2D) {
         super();
+        this.seeker = new LocalMinimaSeeker(NUM_DIMENSIONS, ENV_SIZE);
         this.function = function;
-        this.lifeformGrid = new Grid(2, 5);
         this.environment = new Grid(2, ENV_SIZE);
         gridToVectorSpace = new GridToVectorSpace(environment, minimax2D);
-
-        SubGrid brain = lifeformGrid.subGrid(1, 3, 1, 3);
-        this.brainManager = new GridManager(brain);
 
         Random random = new Random(System.nanoTime());
         lifeformLocation = new int[]{
                 random.nextInt(ENV_SIZE),
                 random.nextInt(ENV_SIZE)
         };
+        seeker.setCurrentLocationInSpace(lifeformLocation);
     }
 
     double sigmoid(double x) {
@@ -66,117 +60,19 @@ public class ThingThatMovesAround implements SystemModel {
         //  Step 1 - sensory inputs
         GridPoint currentLocationInEnvironmentGrid = environment.at(lifeformLocation);
 
-        GridPoint sensorLeft = lifeformGrid.at(0, 2);
-        GridPoint sensorRight = lifeformGrid.at(4, 2);
-        GridPoint sensorUp = lifeformGrid.at(2, 4);
-        GridPoint sensorDown = lifeformGrid.at(2, 0);
+        double[] adjacentValues = new double[4];
+        adjacentValues[0] = (currentLocationInEnvironmentGrid.adjacent(0, false).getActivation());
+        adjacentValues[1] = (currentLocationInEnvironmentGrid.adjacent(0, true).getActivation());
+        adjacentValues[2] = (currentLocationInEnvironmentGrid.adjacent(1, false).getActivation());
+        adjacentValues[3] = (currentLocationInEnvironmentGrid.adjacent(1, true).getActivation());
 
-        sensorLeft.setActivation(currentLocationInEnvironmentGrid.adjacent(0, false).getActivation());
-        sensorRight.setActivation(currentLocationInEnvironmentGrid.adjacent(0, true).getActivation());
-        sensorUp.setActivation(currentLocationInEnvironmentGrid.adjacent(1, true).getActivation());
-        sensorDown.setActivation(currentLocationInEnvironmentGrid.adjacent(1, false).getActivation());
+        seeker.setAdjacentValues(adjacentValues);
 
-        GridPoint currentCenter = brainManager.getPoint(2,2);
-        brainManager.update(lifeformGrid.subGrid(1, 3, 1, 3));
-        brainManager.update(currentCenter, 2,2);
-
-        brainManager.process(new GridVisitor() {
-            @Override
-            public void visit(IGrid grid) {
-
-            }
-        }, new GridNodeVisitor() {
-            @Override
-            public void visit(GridPoint gridPoint, IGrid grid, int... location) {
-                GridPoint[] points = gridPoint.vonNeumannNeighbourhood();
-                double sum = 0;
-                for(GridPoint p : points) {
-                    sum += p.getActivation();
-                }
-
-                if(sum > 0 ){
-                    gridPoint.setActivation(sigmoid(sum));
-                }
-            }
-        }, new GridVisitor() {
-            @Override
-            public void visit(IGrid grid) {
-
-            }
-        });
-
-        //  Determine next direction to move
-        brainManager.process(new GridVisitor() {
-            @Override
-            public void visit(IGrid grid) {
-
-            }
-        }, new GridNodeVisitor() {
-            @Override
-            public void visit(GridPoint gridPoint, IGrid grid, int... location) {
-                if(location[0] == 2 && location[1] == 2) {  //  Center location
-
-                    Random random = new Random(System.nanoTime());
-                    double min = 1;
-                    int preferredDimension = -1;
-                    boolean preferredForward =  false;
-                    for(int i=0; i<NUM_DIMENSIONS; i++) {
-
-                        GridPoint directionForward = gridPoint.adjacent(i, true);
-                        GridPoint directionBackward = gridPoint.adjacent(i, false);
-                        if(directionBackward.getActivation() <= min) {
-                            if(directionBackward.getActivation() == min && random.nextBoolean()) {
-
-                            } else {
-                                min = directionBackward.getActivation();
-                                preferredDimension = i;
-                                preferredForward = false;
-                            }
-                        }
-                        if(directionForward.getActivation() <= min) {
-                            if(directionBackward.getActivation() == min && random.nextBoolean()) {
-                            } else {
-
-                                min = directionForward.getActivation();
-                                preferredDimension = i;
-                                preferredForward = true;
-                            }
-                        }
-                        else {
-                            continue;
-                        }
-
-                    }
-
-                    if(preferredDimension >= 0) {
-                        Random rand = new Random(System.nanoTime());
-                        if(preferredForward) {
-                            lifeformLocation[preferredDimension] += 1;
-                        } else {
-                            lifeformLocation[preferredDimension] -= 1;
-                        }
-
-                        if(lifeformLocation[preferredDimension] < 0) {
-                            lifeformLocation[preferredDimension] = ENV_SIZE-1;
-                        }
-
-                        lifeformLocation[preferredDimension] %= ENV_SIZE;
-
-                        gridPoint.setActivation(-min);
-                    }
-
-                }
-            }
-        }, new GridVisitor() {
-            @Override
-            public void visit(IGrid grid) {
-
-            }
-        });
+        lifeformLocation = seeker.getNextLocation();
 
         if(environment.at(lifeformLocation).getActivation() == 0.0) {
             double[] xy = gridToVectorSpace.toVectorSpace(lifeformLocation);
-            environment.at(lifeformLocation).setActivation( sigmoid(function.compute(xy[0], xy[1])) );
+            environment.at(lifeformLocation).setActivation( function.compute(xy[0], xy[1]) );
         }
 
         MiniMaxColorCalculator calc = new MiniMaxColorCalculator();
@@ -214,7 +110,7 @@ public class ThingThatMovesAround implements SystemModel {
             @Override
             public void render(Graphics2D graphics2D, Dimension size) {
 
-                IGrid brain = thing.brainManager.getGrid();
+                IGrid brain = thing.seeker;
 
                 MiniMaxColorCalculator calc = new MiniMaxColorCalculator();
                 int numSquaresPerSide = brain.getNumPoints();
@@ -230,7 +126,7 @@ public class ThingThatMovesAround implements SystemModel {
                         try {
                             color = new Color(calculatedRed, 0, 0);
                             graphics2D.setColor(color);
-                            graphics2D.fillRect((location[0]-1)*numPixelsPerSide, (location[1]-1)*numPixelsPerSide, numPixelsPerSide, numPixelsPerSide);
+                            graphics2D.fillRect((location[0])*numPixelsPerSide, (location[1])*numPixelsPerSide, numPixelsPerSide, numPixelsPerSide);
                         } catch(Exception ex) {
                             ex.printStackTrace();
                         }
