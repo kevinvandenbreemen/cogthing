@@ -99,12 +99,23 @@ public class ThingThatMovesAround implements SystemModel {
     }
 
     public static void main(String[] args) {
-        ThingThatMovesAround thing = new ThingThatMovesAround(new TwoDimensionalFunction() {
+
+        //  Function with multiple minima
+        TwoDimensionalFunction multimin = new TwoDimensionalFunction() {
+            @Override
+            public double compute(double x, double y) {
+                return Math.sin(x) + Math.cos(y);
+            }
+        };
+
+        TwoDimensionalFunction parabaloid = new TwoDimensionalFunction() {
             @Override
             public double compute(double x, double y) {
                 return x*x + y*y;   //  Crude parabaloid
             }
-        }, -1.0, 1.0, -1.0, 1.0);
+        };
+
+        ThingThatMovesAround thing = new ThingThatMovesAround(multimin, -5.0, 5.0, -5.0, 5.0);
 
         SecondaryGridVisualizer visualizer = new SecondaryGridVisualizer("Brain", new SystemModel() {
             @Override
