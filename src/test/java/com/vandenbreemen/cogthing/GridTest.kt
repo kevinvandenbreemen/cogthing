@@ -95,4 +95,21 @@ class GridTest {
         expectedPoints.`should be empty`()
     }
 
+    @Test
+    fun `reproduce bug with 4 dimensional mixup`() {
+        val grid = Grid(4, 5)
+
+        grid.at(2,2,0,2).activation shouldBeEqualTo 0.0
+
+        grid.at(2,2,2,2).activation = 1.0
+        grid.at(2,2,2,2).activation shouldBeEqualTo  1.0
+
+        grid.at(2,2,0,2).activation shouldBeEqualTo 0.0
+        grid.at(2,2,4,2).activation shouldBeEqualTo 0.0
+
+        grid.at(2,2,0,2).activation = 2.0
+        grid.at(2,2,4,2).activation = 2.0
+        grid.at(2,2,2,2).activation shouldBeEqualTo  1.0
+    }
+
 }

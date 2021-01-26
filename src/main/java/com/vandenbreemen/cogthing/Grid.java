@@ -118,10 +118,19 @@ public class Grid implements IGrid {
                     }
                     return points;
                 }
+
+                @Override
+                public String toString() {
+                    StringBuilder bld = new StringBuilder("GridPoint - ");
+                    for(int coord: originalPoint) {
+                        bld.append(coord).append(", ");
+                    }
+                    return bld.toString();
+                }
             };
         } else {
             int[] nextLocationSequence = new int[location.length-1];
-            System.arraycopy(location, 0, nextLocationSequence, 0, location.length-1);
+            System.arraycopy(location, 1, nextLocationSequence, 0, location.length-1);
             return doFetchPoint(from.dimensionIntersects[location[0]], originalPoint, nextLocationSequence);
         }
     }

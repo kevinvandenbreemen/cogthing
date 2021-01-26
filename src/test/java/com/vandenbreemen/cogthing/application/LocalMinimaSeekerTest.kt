@@ -49,4 +49,16 @@ internal class LocalMinimaSeekerTest {
         next.asList() shouldBeEqualTo listOf(5, 4)
     }
 
+    @Test
+    fun `should work in more dimensions`() {
+        val seeker = LocalMinimaSeeker(4)
+        seeker.at(2,2,2,2).activation shouldBeEqualTo 0.0
+
+        seeker.setCurrentLocationInSpace(5, 5, 6, 6)
+        seeker.setAdjacentValues(2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 1.0)
+
+        val next = seeker.nextLocation
+        next.asList() shouldBeEqualTo listOf(5, 5, 6, 7)
+    }
+
 }
