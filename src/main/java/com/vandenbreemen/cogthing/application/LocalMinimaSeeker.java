@@ -92,22 +92,23 @@ public class LocalMinimaSeeker extends Grid  {
         List<int[]> locationsToPerformLogicOn = new ArrayList<>();
 
         for(int dimension = 0; dimension < getNumDimensions(); dimension++) {
+
+            locationMin = new int[getNumDimensions()];
+            locationMax = new int[getNumDimensions()];
+
             for(int dim = 0; dim<getNumDimensions(); dim++) {
-                locationMin = new int[getNumDimensions()];
-                locationMax = new int[getNumDimensions()];
-                for(int d = 0; d<getNumDimensions(); d++) {
-                    if(d == dim) {
-                        locationMin[d] = 1;
-                        locationMax[d] = 3;
-                    } else {
-                        locationMin[d] = 2;
-                        locationMax[d] = 2;
-                    }
+
+                if(dim == dimension) {
+                    locationMin[dim] = 1;
+                    locationMax[dim] = 3;
+                } else {
+                    locationMin[dim] = 2;
+                    locationMax[dim] = 2;
                 }
 
-                locationsToPerformLogicOn.add(locationMin);
-                locationsToPerformLogicOn.add(locationMax);
             }
+            locationsToPerformLogicOn.add(locationMin);
+            locationsToPerformLogicOn.add(locationMax);
         }
 
         //  Step 2:  Calculate move costs
