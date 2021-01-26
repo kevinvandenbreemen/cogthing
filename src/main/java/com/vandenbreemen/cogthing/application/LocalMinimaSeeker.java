@@ -6,6 +6,7 @@ import com.vandenbreemen.cogthing.GridPoint;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 
 public class LocalMinimaSeeker extends Grid  {
 
@@ -14,8 +15,14 @@ public class LocalMinimaSeeker extends Grid  {
      */
     private int[] currentLocationInSpace;
 
-    public LocalMinimaSeeker(int numDimensions) {
+    /**
+     * Number of points in the environment this seeker is exploring
+     */
+    private int environmentSize;
+
+    public LocalMinimaSeeker(int numDimensions, int environmentSize) {
         super(numDimensions, 5);
+        this.environmentSize = environmentSize;
     }
 
     public void setCurrentLocationInSpace(int ... currentLocationInSpace) {
@@ -131,6 +138,7 @@ public class LocalMinimaSeeker extends Grid  {
 
         //  Step 3:  Find cheapest move
         double minValue = Double.MAX_VALUE;
+        Random random = new Random(System.nanoTime());
         int dimensionToMoveAlong = 0;
         boolean moveForward = false;
         for(int dimension = 0; dimension<getNumDimensions(); dimension++) {
@@ -146,6 +154,15 @@ public class LocalMinimaSeeker extends Grid  {
                     moveForward = true;
                     minValue = frontValue;
                 }
+            } else if (backValue == minValue || frontValue == minValue) {
+                if(random.nextBoolean()) {
+                    dimensionToMoveAlong = dimension;
+                    if(backValue == minValue) {
+                        moveForward = false;
+                    } else {
+                        moveForward = true;
+                    }
+                }
             }
         }
 
@@ -154,6 +171,13 @@ public class LocalMinimaSeeker extends Grid  {
             currentLocationInSpace[dimensionToMoveAlong] += 1;
         } else {
             currentLocationInSpace[dimensionToMoveAlong] -= 1;
+        }
+
+        //  Step 5:  Make sure we're not out of bounds
+        if(currentLocationInSpace[dimensionToMoveAlong] < 0) {
+            currentLocationInSpace[dimensionToMoveAlong] = environmentSize-1;
+        } else {
+            currentLocationInSpace[dimensionToMoveAlong] %= environmentSize;
         }
 
         return currentLocationInSpace;

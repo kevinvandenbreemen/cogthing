@@ -7,7 +7,7 @@ internal class LocalMinimaSeekerTest {
 
     @Test
     fun `should calculate next move to lowest direction - right`() {
-        val seeker = LocalMinimaSeeker(2)
+        val seeker = LocalMinimaSeeker(2, 100)
 
         seeker.setCurrentLocationInSpace(5, 5)
         seeker.setAdjacentValues(1.0, 0.0, 2.0, 2.0)    //  1 <-- --> 0 along X axis, 2 <-- --> 2 along Y axis
@@ -18,7 +18,7 @@ internal class LocalMinimaSeekerTest {
 
     @Test
     fun `should calculate next move to lowest direction - left`() {
-        val seeker = LocalMinimaSeeker(2)
+        val seeker = LocalMinimaSeeker(2, 100)
 
         seeker.setCurrentLocationInSpace(5, 5)
         seeker.setAdjacentValues(0.5, 1.0, 2.0, 2.0)
@@ -29,7 +29,7 @@ internal class LocalMinimaSeekerTest {
 
     @Test
     fun `should calculate next move to lowest direction - up`() {
-        val seeker = LocalMinimaSeeker(2)
+        val seeker = LocalMinimaSeeker(2, 100)
 
         seeker.setCurrentLocationInSpace(5, 5)
         seeker.setAdjacentValues(2.0, 2.0, 1.0, 0.5)
@@ -40,7 +40,7 @@ internal class LocalMinimaSeekerTest {
 
     @Test
     fun `should calculate next move to lowest direction - down`() {
-        val seeker = LocalMinimaSeeker(2)
+        val seeker = LocalMinimaSeeker(2, 100)
 
         seeker.setCurrentLocationInSpace(5, 5)
         seeker.setAdjacentValues(2.0, 2.0, 0.5, 1.5)
@@ -51,7 +51,7 @@ internal class LocalMinimaSeekerTest {
 
     @Test
     fun `should work in more dimensions`() {
-        val seeker = LocalMinimaSeeker(4)
+        val seeker = LocalMinimaSeeker(4, 100)
         seeker.at(2,2,2,2).activation shouldBeEqualTo 0.0
 
         seeker.setCurrentLocationInSpace(5, 5, 6, 6)
@@ -59,6 +59,18 @@ internal class LocalMinimaSeekerTest {
 
         val next = seeker.nextLocation
         next.asList() shouldBeEqualTo listOf(5, 5, 6, 7)
+    }
+
+    @Test
+    fun `should try random diection if all directions have same cost`() {
+        val seeker = LocalMinimaSeeker(2, 100)
+
+        seeker.setCurrentLocationInSpace(5, 5)
+        seeker.setAdjacentValues(0.0, 0.0, 0.0, 0.0)
+
+        for(i in 1 until 10) {
+            println(seeker.nextLocation.asList())
+        }
     }
 
 }
