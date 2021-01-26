@@ -118,7 +118,7 @@ public class LocalMinimaSeeker extends Grid  {
                 //   1:  Is this a location
                 boolean shouldDoMath = false;
                 for(int[] loc : locationsToPerformLogicOn) {
-                    if(Arrays.compare(loc, location) == 0) {
+                    if(Arrays.equals(loc, location)) {
                         shouldDoMath = true;
                         break;
                     }
