@@ -1,5 +1,7 @@
 package com.vandenbreemen.cogthing.application;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Arrays;
 import java.util.Random;
 
@@ -41,56 +43,10 @@ public class LocalMinimaSeekerWithoutGrid {
     public int[] getNextLocation() {
 
         //  First calculate the move costs along each direction
-        double[] moveCosts = new double[numDimensions*2];
-        double sum;
-        for(int dimension = 0; dimension<numDimensions; dimension++) {
-
-            double moveBackRaw = adjacentValues[2*dimension];
-            double moveForwRaw = adjacentValues[(2*dimension) + 1];
-
-            sum = 0;
-            sum += moveBackRaw;
-            moveCosts[2*dimension] = sigmoid(sum);
-
-            sum = 0;
-            sum += moveForwRaw;
-            moveCosts[(2*dimension)+1] = sigmoid(sum);
-
-        }
+        double[] moveCosts = calculateMoveCosts();
 
         //  Next determine all possible directions (cheapest) we can move in
-        double minValue = Double.MAX_VALUE;
-        double backValue;
-        double frontValue;
-        byte[] viableDirections = new byte[numDimensions];
-        for(int dimension = 0; dimension<numDimensions; dimension++) {
-
-            backValue = moveCosts[2*dimension];
-            frontValue = moveCosts[(2*dimension) + 1];
-
-            if(backValue < minValue || frontValue < minValue) {
-                Arrays.fill(viableDirections, (byte)0);
-
-                if(backValue < frontValue) {
-                    viableDirections[dimension] = BACKWARD;
-                    minValue = backValue;
-                } else {
-                    viableDirections[dimension] = FORWARD;
-                    minValue = frontValue;
-                }
-            } else if (backValue == minValue || frontValue == minValue) {
-                if(backValue == minValue && frontValue == minValue) {
-                    viableDirections[dimension] = BACKWARD_FORWARD;
-                } else {
-                    if(backValue == minValue) {
-                        viableDirections[dimension] = BACKWARD;
-                    } else {
-                        viableDirections[dimension] = FORWARD;
-                    }
-                }
-            }
-
-        }
+        byte[] viableDirections = calculateViableDirections(moveCosts);
 
         //  Step 3a:  Determine all the directions we can move in
         int directionCount = 0;
@@ -137,5 +93,63 @@ public class LocalMinimaSeekerWithoutGrid {
 
 
         return currentLocationInSpace;
+    }
+
+    @NotNull
+    private byte[] calculateViableDirections(double[] moveCosts) {
+        double minValue = Double.MAX_VALUE;
+        double backValue;
+        double frontValue;
+        byte[] viableDirections = new byte[numDimensions];
+        for(int dimension = 0; dimension<numDimensions; dimension++) {
+
+            backValue = moveCosts[2*dimension];
+            frontValue = moveCosts[(2*dimension) + 1];
+
+            if(backValue < minValue || frontValue < minValue) {
+                Arrays.fill(viableDirections, (byte)0);
+
+                if(backValue < frontValue) {
+                    viableDirections[dimension] = BACKWARD;
+                    minValue = backValue;
+                } else {
+                    viableDirections[dimension] = FORWARD;
+                    minValue = frontValue;
+                }
+            } else if (backValue == minValue || frontValue == minValue) {
+                if(backValue == minValue && frontValue == minValue) {
+                    viableDirections[dimension] = BACKWARD_FORWARD;
+                } else {
+                    if(backValue == minValue) {
+                        viableDirections[dimension] = BACKWARD;
+                    } else {
+                        viableDirections[dimension] = FORWARD;
+                    }
+                }
+            }
+
+        }
+        return viableDirections;
+    }
+
+    private double[] calculateMoveCosts() {
+        double[] moveCosts = new double[numDimensions*2];
+        double sum;
+        for(int dimension = 0; dimension<numDimensions; dimension++) {
+
+            double moveBackRaw = adjacentValues[2*dimension];
+            double moveForwRaw = adjacentValues[(2*dimension) + 1];
+
+            sum = 0;
+            sum += moveBackRaw;
+            moveCosts[2*dimension] = sigmoid(sum);
+
+            sum = 0;
+            sum += moveForwRaw;
+            moveCosts[(2*dimension)+1] = sigmoid(sum);
+
+        }
+
+        return moveCosts;
     }
 }
