@@ -78,6 +78,10 @@ public class LocalMinimaSeeker extends Grid  {
      */
     public int[] getNextLocation() {
 
+        int[] newCurrentLocation = new int[currentLocationInSpace.length];
+        System.arraycopy(currentLocationInSpace, 0, newCurrentLocation, 0, currentLocationInSpace.length);
+        onUpdateCurrentLocation(newCurrentLocation);
+
         /*
         Trying to create something like this (where c is a "move cost") in an arbitrary number of dimensions
         * * 0 * *
