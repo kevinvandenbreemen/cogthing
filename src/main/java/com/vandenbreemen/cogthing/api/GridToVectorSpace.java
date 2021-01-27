@@ -7,12 +7,12 @@ import com.vandenbreemen.cogthing.Grid;
  */
 public class GridToVectorSpace {
 
-    private Grid grid;
-
     /**
      * Min/max points along the coordinate space
      */
     private double[] vectorSpaceMiniMaxPoints;
+    
+    private int numPoints;
 
     /**
      *
@@ -20,7 +20,11 @@ public class GridToVectorSpace {
      * @param vectorSpaceMiniMaxPoints  Min and max points along all dimensions.
      */
     public GridToVectorSpace(Grid grid, double ... vectorSpaceMiniMaxPoints) {
-        this.grid = grid;
+        this(grid.getNumPoints(), vectorSpaceMiniMaxPoints);
+    }
+
+    public GridToVectorSpace(int numPoints, double ... vectorSpaceMiniMaxPoints) {
+        this.numPoints = numPoints;
         this.vectorSpaceMiniMaxPoints = vectorSpaceMiniMaxPoints;
     }
 
@@ -41,7 +45,6 @@ public class GridToVectorSpace {
             max = vectorSpaceMiniMaxPoints[(2*i)+1];
             double diff = max-min;
 
-            int numPoints = grid.getNumPoints();
             double step = diff / (double)numPoints;
             double distance = pointCoordinates[i] - min;
             result[i] = (int)Math.floor(distance / step);
@@ -65,7 +68,6 @@ public class GridToVectorSpace {
             min = vectorSpaceMiniMaxPoints[2*i];
             max = vectorSpaceMiniMaxPoints[(2*i)+1];
             double diff = max-min;
-            int numPoints = grid.getNumPoints();
             double step = diff / (double)numPoints;
 
             result[i] = min + (double)(gridCoordinates[i] * step);
