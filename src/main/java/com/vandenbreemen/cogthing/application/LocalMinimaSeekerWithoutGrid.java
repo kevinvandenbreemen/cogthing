@@ -2,6 +2,7 @@ package com.vandenbreemen.cogthing.application;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
 
@@ -13,10 +14,13 @@ public class LocalMinimaSeekerWithoutGrid {
     private static final byte FORWARD = 1;
     private static final byte BACKWARD = 2;
     private static final byte BACKWARD_FORWARD = 3;
+    private static final int MAX_LOCATION_HISTORY = 100;
 
     private int numDimensions;
     private int numPoints;
     private int[] currentLocationInSpace;
+
+    private ArrayList<int[]> previouslyVisitedLocations;
 
     /**
      * Cost / calculated values surrounding the {@link #currentLocationInSpace}
@@ -26,6 +30,7 @@ public class LocalMinimaSeekerWithoutGrid {
     public LocalMinimaSeekerWithoutGrid(int numDimensions, int numPoints) {
         this.numDimensions = numDimensions;
         this.numPoints = numPoints;
+        previouslyVisitedLocations = new ArrayList<>();
     }
 
     public void setCurrentLocationInSpace(int ... currentLocationInSpace) {
@@ -40,7 +45,18 @@ public class LocalMinimaSeekerWithoutGrid {
         return (1/( 1 + Math.pow(Math.E,( (-8*x) +4))));
     }
 
+    private void storeCurrentLocation() {
+        if(previouslyVisitedLocations.size() > MAX_LOCATION_HISTORY) {
+            previouslyVisitedLocations.remove(0);
+        }
+        int[] copyOfCurrentLocation = new int[numDimensions];
+        System.arraycopy(currentLocationInSpace, 0, copyOfCurrentLocation, 0, numDimensions);
+        previouslyVisitedLocations.add(copyOfCurrentLocation);
+    }
+
     public int[] getNextLocation() {
+
+        storeCurrentLocation();
 
         //  First calculate the move costs along each direction
         double[] moveCosts = calculateMoveCosts();
@@ -132,7 +148,18 @@ public class LocalMinimaSeekerWithoutGrid {
         return viableDirections;
     }
 
+    private boolean hasVisited(int[] prospectiveLocation) {
+        for(int[] stored : previouslyVisitedLocations) {
+            if(Arrays.equals(prospectiveLocation, stored)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private double[] calculateMoveCosts() {
+
+        int[] prospectiveLocation;
         double[] moveCosts = new double[numDimensions*2];
         double sum;
         for(int dimension = 0; dimension<numDimensions; dimension++) {
@@ -140,12 +167,30 @@ public class LocalMinimaSeekerWithoutGrid {
             double moveBackRaw = adjacentValues[2*dimension];
             double moveForwRaw = adjacentValues[(2*dimension) + 1];
 
+            prospectiveLocation = new int[numDimensions];
+            System.arraycopy(currentLocationInSpace, 0, prospectiveLocation, 0, numDimensions);
+
             sum = 0;
             sum += moveBackRaw;
+
+            prospectiveLocation[dimension] -= 1;
+            if(prospectiveLocation[dimension] < 0) {
+                prospectiveLocation[dimension] = numPoints-1;
+            }
+            if(hasVisited(prospectiveLocation)) {
+                sum += 1.0;
+            }
             moveCosts[2*dimension] = sigmoid(sum);
 
             sum = 0;
+            prospectiveLocation = new int[numDimensions];
+            System.arraycopy(currentLocationInSpace, 0, prospectiveLocation, 0, numDimensions);
+            prospectiveLocation[dimension] += 1;
+            prospectiveLocation[dimension] %= numPoints;
             sum += moveForwRaw;
+            if(hasVisited(prospectiveLocation)) {
+                sum += 1.0;
+            }
             moveCosts[(2*dimension)+1] = sigmoid(sum);
 
         }
