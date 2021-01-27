@@ -60,7 +60,7 @@ public class ModifiedLocalMinimaSeeker extends LocalMinimaSeeker {
                 }
 
                 for(int[] visited : locationsVisited) {
-                    if(Arrays.compare(nextLocation, visited) == 0) {
+                    if(Arrays.equals(nextLocation, visited)) {
                         sum += 0.5;
                     }
                 }
