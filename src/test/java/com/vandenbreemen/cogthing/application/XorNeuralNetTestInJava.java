@@ -99,6 +99,30 @@ public class XorNeuralNetTestInJava {
         eval.eval(ds.getLabels(), output);
         System.out.println(eval.stats());
 
+        INDArray testData = Nd4j.zeros(1, 2);
+        testData.putScalar(new int[]{0, 0}, 0);
+        testData.putScalar(new int[]{0, 1}, 1);
+
+
+        for(int i=0; i<10; i++) {
+
+            testData = Nd4j.zeros(1, 2);
+            testData.putScalar(new int[]{0, 0}, 0);
+            testData.putScalar(new int[]{0, 1}, 1);
+
+            System.out.println("Actual Neural Net Evaluation!:  (ipt="+testData+") " + net.output(testData, false));
+
+            testData = Nd4j.zeros(1, 2);
+            testData.putScalar(new int[]{0, 0}, 0);
+            testData.putScalar(new int[]{0, 1}, 0);
+            System.out.println("Actual Neural Net OFF!:  (ipt="+testData+") " + net.output(testData, false));
+
+            testData = Nd4j.zeros(1, 2);
+            testData.putScalar(new int[]{0, 0}, 1);
+            testData.putScalar(new int[]{0, 1}, 0);
+            System.out.println("Actual Neural Net ON AGAIN!:  (ipt="+testData+") " + net.output(testData, false));
+        }
+
     }
 
 }
